@@ -188,8 +188,8 @@
 
     <!-- Header -->
     <div class="case-header">
-        <h1>Commercial Sales Performance</h1>
-        <div class="case-meta">Qlik Sense | Snowflake | SQL | CSS Styling</div>
+        <h1> Snowflake & Streamlit</h1>
+        <div class="case-meta">Qlik Sense | Logistics</div>
     </div>
 
     <div class="container">
@@ -201,17 +201,17 @@
 
             <!-- SLIDE 1 (Main) -->
             <div class="slide active">
-                <img src="images/p1-main.png" alt="Main Dashboard View">
+                <img src="Images/p4-main.png" alt="Main Dashboard View">
             </div>
             
             <!-- SLIDE 2 (Detail) -->
             <div class="slide">
-                <img src="images/p1-detail1.png" alt="Drill Down View">
+                <img src="Images/p4-detail1.png" alt="Drill Down View">
             </div>
 
             <!-- SLIDE 3 (Detail) -->
             <div class="slide">
-                <img src="images/p1-detail2.png" alt="Mobile View">
+                <img src="Images/p4-detail2.png" alt="Mobile View">
             </div>
 
             <!-- Button Right -->
@@ -231,28 +231,27 @@
             <div class="star-block">
                 <span class="star-label">SITUATION</span>
                 <div class="star-text">
-                    Sales teams were relying on static monthly Excel PDFs to track margins. Data from Domestic and Export markets lived in separate silos, making it impossible to see a consolidated "Global Position" until week's end.
-                </div>
+                    There was a disconnect between the data warehouse (what we thought we had) and the physical floor (what was actually there). Qlik is great for reading data, but we lacked a tool for users to "Write Back" or generate tasks based on that data.
             </div>
 
             <div class="star-block">
                 <span class="star-label">TASK</span>
                 <div class="star-text">
-                    My objective was to build a live, consolidated Qlik Sense dashboard sourced directly from Snowflake. The tool needed to handle 50M+ rows of transaction data while remaining responsive enough for iPads used by sales reps in the field.
+                    Build a lightweight, mobile-friendly application that allows specific warehouse staff to generate stock movement tasks and manage picking lists without needing full ERP access.
                 </div>
             </div>
 
             <div class="star-block">
                 <span class="star-label">ACTION</span>
                 <div class="star-text">
-                    I engineered a Snowflake view to unify currency conversions and unit measurements (Lbs vs Kgs). In Qlik, I utilized Set Analysis to create dynamic "Current vs Previous Year" comparisons. I applied custom CSS (Multi-KPI) to style the objects for high readability on smaller screens, moving away from the default grid look.
+                    I utilized Python and Streamlit to build a web-app interface sitting directly on top of the Snowflake Data Warehouse. This tool allowed for 'Task Generation' logic that validated against live inventory levels before writing the request back to the database.
                 </div>
             </div>
 
             <div class="star-block">
                 <span class="star-label">RESULT</span>
                 <div class="star-text">
-                    The dashboard reduced reporting latency from 5 days to real-time. Sales managers identified a 4% margin leakage in the Export sector within the first week of use. Adoption rate among the sales team hit 90% within the first month.
+                    This bridged the "Operational Gap," creating a seamless workflow where data analysis immediately triggers physical action. It improved inventory accuracy by allowing pickers to flag issues at the bin face, which immediately updated the central reporting repository.
                 </div>
             </div>
 
@@ -290,4 +289,5 @@
     </script>
 
 </body>
+
 </html>
