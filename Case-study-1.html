@@ -188,8 +188,8 @@
 
     <!-- Header -->
     <div class="case-header">
-        <h1>Commercial Sales Performance</h1>
-        <div class="case-meta">Qlik Sense | Snowflake | SQL | CSS Styling</div>
+        <h1>Public Benchmarking and Pricing Analytics</h1>
+        <div class="case-meta">Qlik Sense | Snowflake | Sales API</div>
     </div>
 
     <div class="container">
@@ -201,17 +201,17 @@
 
             <!-- SLIDE 1 (Main) -->
             <div class="slide active">
-                <img src="images/p1-main.png" alt="Main Dashboard View">
+                <img src="Images/p1-main.png" alt="Main Dashboard View">
             </div>
             
             <!-- SLIDE 2 (Detail) -->
             <div class="slide">
-                <img src="images/p1-detail1.png" alt="Drill Down View">
+                <img src="Images/p1-detail1.png" alt="Drill Down View">
             </div>
 
             <!-- SLIDE 3 (Detail) -->
             <div class="slide">
-                <img src="images/p1-detail2.png" alt="Mobile View">
+                <img src="Images/p1-detail2.png" alt="Mobile View">
             </div>
 
             <!-- Button Right -->
@@ -231,28 +231,28 @@
             <div class="star-block">
                 <span class="star-label">SITUATION</span>
                 <div class="star-text">
-                    Sales teams were relying on static monthly Excel PDFs to track margins. Data from Domestic and Export markets lived in separate silos, making it impossible to see a consolidated "Global Position" until week's end.
+                    Sales teams knew their own prices, but comparing them against the broader market indices (Argus) was a manual, disconnected process. This lag made it difficult to react quickly to market volatility.
                 </div>
             </div>
 
             <div class="star-block">
                 <span class="star-label">TASK</span>
                 <div class="star-text">
-                    My objective was to build a live, consolidated Qlik Sense dashboard sourced directly from Snowflake. The tool needed to handle 50M+ rows of transaction data while remaining responsive enough for iPads used by sales reps in the field.
+                    I needed to automate the ingestion of external market data and harmonize it with internal transaction data to calculate a true "Market Share" and "Price Performance" metric.
                 </div>
             </div>
 
             <div class="star-block">
                 <span class="star-label">ACTION</span>
                 <div class="star-text">
-                    I engineered a Snowflake view to unify currency conversions and unit measurements (Lbs vs Kgs). In Qlik, I utilized Set Analysis to create dynamic "Current vs Previous Year" comparisons. I applied custom CSS (Multi-KPI) to style the objects for high readability on smaller screens, moving away from the default grid look.
+                    Using a Snowflake ingestion and normalize Argus data (handling different Units of Measure and Currencies). I then built a Qlik Data Model that blended this external data with our sales ledger, using Set Analysis to create fair "Apples-to-Apples" comparisons by product category.
                 </div>
             </div>
 
             <div class="star-block">
                 <span class="star-label">RESULT</span>
                 <div class="star-text">
-                    The dashboard reduced reporting latency from 5 days to real-time. Sales managers identified a 4% margin leakage in the Export sector within the first week of use. Adoption rate among the sales team hit 90% within the first month.
+                    The executive team now has a daily pulse on market position. The dashboard highlighted specific product lines that were underperforming against the index, allowing the commercial team to adjust pricing strategies in near real-time.
                 </div>
             </div>
 
@@ -290,4 +290,5 @@
     </script>
 
 </body>
+
 </html>
