@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Senior Business Analyst Portfolio</title>
+    <!-- Import Google Fonts for a premium look -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- COLOUR PALETTE (Soothing & Professional) --- 
+           Background: #F4F7F6 (Very light slate grey)
+           Text: #2C3E50 (Dark Blue/Grey)
+           Accent: #1ABC9C (Teal/Sea Green)
+           Cards: #FFFFFF (White)
+        */
+
+        :root {
+            --primary-text: #2C3E50;
+            --accent-color: #1ABC9C;
+            --bg-color: #F4F7F6;
+            --card-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Open Sans', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--primary-text);
+            line-height: 1.6;
+        }
+
+        /* --- HERO SECTION --- */
+        header {
+            background: linear-gradient(135deg, #2C3E50 0%, #4CA1AF 100%);
+            color: white;
+            padding: 80px 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 3rem;
+            margin: 0;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            font-weight: 400;
+            opacity: 0.9;
+            margin-top: 15px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* --- CONTAINER --- */
+        .container {
+            max-width: 1200px;
+            margin: -50px auto 50px; /* Pulls content up into the header slightly */
+            padding: 0 20px;
+            position: relative;
+        }
+
+        /* --- GRID LAYOUT --- */
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); /* Two large columns */
+            gap: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .portfolio-grid {
+                grid-template-columns: 1fr; /* Stack on mobile */
+            }
+        }
+
+        /* --- CARD STYLE --- */
+        .card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+        }
+
+        /* --- IMAGE AREA --- */
+        .card-image-container {
+            height: 300px;
+            background-color: #e0e6ed;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Ensures image covers area without stretching */
+            object-position: top center;
+            transition: transform 0.5s ease;
+        }
+
+        .card:hover .card-image {
+            transform: scale(1.03); /* Subtle zoom on hover */
+        }
+
+        /* --- CONTENT AREA --- */
+        .card-content {
+            padding: 30px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-tags {
+            margin-bottom: 15px;
+        }
+
+        .tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 4px 10px;
+            border-radius: 50px;
+            margin-right: 5px;
+        }
+
+        .tag.blue { background-color: #E3F2FD; color: #1565C0; }
+        .tag.green { background-color: #E8F5E9; color: #2E7D32; }
+        .tag.grey { background-color: #ECEFF1; color: #455A64; }
+
+        .card-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0 0 10px 0;
+            color: #2C3E50;
+        }
+
+        .card-desc {
+            font-size: 0.95rem;
+            color: #546E7A;
+            margin-bottom: 20px;
+            flex-grow: 1; /* Pushes button to bottom */
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            text-align: center;
+            padding: 40px;
+            color: #78909C;
+            font-size: 0.9rem;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>John Smith</h1>
+        <p>Senior Business Analyst specializing in Data Warehousing, Visualisation, and Supply Chain Logistics.</p>
+    </header>
+
+    <div class="container">
+        <div class="portfolio-grid">
+
+            <!-- PROJECT 1 -->
+            <div class="card">
+                <div class="card-image-container">
+                    <!-- Replace src with your image file name -->
+                    <img src="project1.png" alt="Sales Dashboard" class="card-image">
+                </div>
+                <div class="card-content">
+                    <div class="card-tags">
+                        <span class="tag green">Qlik Sense</span>
+                        <span class="tag blue">Snowflake</span>
+                    </div>
+                    <h3 class="card-title">Commercial Sales Performance</h3>
+                    <p class="card-desc">A comprehensive view of margin analysis across domestic and export markets. Features custom CSS KPI objects and dynamic set analysis for Year-over-Year comparison.</p>
+                </div>
+            </div>
+
+            <!-- PROJECT 2 -->
+            <div class="card">
+                <div class="card-image-container">
+                    <img src="project2.png" alt="Inventory Dashboard" class="card-image">
+                </div>
+                <div class="card-content">
+                    <div class="card-tags">
+                        <span class="tag green">Qlik Sense</span>
+                        <span class="tag grey">Logistics</span>
+                    </div>
+                    <h3 class="card-title">Inventory & Cold Chain</h3>
+                    <p class="card-desc">Tracking stock aging and freezer capacity utilization. This dashboard reduced stock storage overages by 12% through early-warning visualization alerts.</p>
+                </div>
+            </div>
+
+            <!-- PROJECT 3 -->
+            <div class="card">
+                <div class="card-image-container">
+                    <img src="project3.png" alt="Production Dashboard" class="card-image">
+                </div>
+                <div class="card-content">
+                    <div class="card-tags">
+                        <span class="tag blue">SQL</span>
+                        <span class="tag grey">Production</span>
+                    </div>
+                    <h3 class="card-title">Daily Production Scorecard</h3>
+                    <p class="card-desc">Monitoring daily processing volumes against labour hours. Built on a Snowflake architecture to aggregate multiple plant data sources into a single view.</p>
+                </div>
+            </div>
+
+            <!-- PROJECT 4 -->
+            <div class="card">
+                <div class="card-image-container">
+                    <img src="project4.png" alt="Finance Dashboard" class="card-image">
+                </div>
+                <div class="card-content">
+                    <div class="card-tags">
+                        <span class="tag green">Qlik Sense</span>
+                        <span class="tag blue">Finance</span>
+                    </div>
+                    <h3 class="card-title">Accounts Receivable Aging</h3>
+                    <p class="card-desc">Automated cash flow reporting pipeline. Replaces legacy Excel models with live Snowflake data, providing Finance teams with real-time credit risk exposure.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2023 John Smith. Built with HTML, CSS, and Data Analytics expertise.
+    </footer>
+
+</body>
+</html>
