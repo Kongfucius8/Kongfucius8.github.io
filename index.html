@@ -1,271 +1,425 @@
-<! <!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Senior Business Analyst Portfolio</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
-    
+    <title>Train Tracks</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* --- COLOUR PALETTE (Soothing & Professional) --- 
-           Background: #F4F7F6 (Very light slate grey)
-           Text: #2C3E50 (Dark Blue/Grey)
-           Accent: #1ABC9C (Teal/Sea Green)
-           Cards: #FFFFFF (White)
-        */
-
-        :root {
-            --primary-text: #2C3E50;
-            --accent-color: #1ABC9C;
-            --bg-color: #F4F7F6;
-            --card-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f4f7f6; 
+            user-select: none; 
+            -webkit-user-select: none;
         }
-
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Open Sans', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--primary-text);
-            line-height: 1.6;
+        
+        /* Grid and Cells */
+        .grid-cell {
+            width: 45px; height: 45px;
+            border: 1px solid #94a3b8;
+            background-color: #ffffff;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; position: relative;
+            box-sizing: border-box;
+            transition: background-color 0.1s;
         }
+        @media (min-width: 640px) { .grid-cell { width: 55px; height: 55px; } }
+        
+        .grid-cell:hover:not(.locked) { background-color: #e2e8f0; }
+        .grid-cell.locked { cursor: not-allowed; background-color: #dcfce7; } /* Light green for start/end */
 
-        /* --- HERO SECTION --- */
-        header {
-            background: linear-gradient(135deg, #2C3E50 0%, #4CA1AF 100%);
-            color: white;
-            padding: 80px 20px;
-            text-align: center;
+        /* Clues */
+        .clue {
+            width: 45px; height: 45px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.25rem; transition: color 0.3s;
+            background-color: #cbd5e1;
+            border: 1px solid #94a3b8;
         }
+        @media (min-width: 640px) { .clue { width: 55px; height: 55px; } }
+        
+        .clue.invalid { color: #dc2626; } /* Red */
+        .clue.valid { color: #16a34a; }   /* Green */
 
-        header h1 {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 3rem;
-            margin: 0;
-            font-weight: 700;
-            letter-spacing: -1px;
+        /* Markers */
+        .cross { color: #ef4444; font-size: 2rem; font-weight: 300; pointer-events: none; line-height: 1; }
+        
+        /* SVG Styling */
+        .track-svg { width: 100%; height: 100%; position: absolute; top: 0; left: 0; pointer-events: none; }
+        .sleeper { stroke: #8b5a2b; stroke-width: 8; stroke-linecap: butt; fill: none; }
+        .rail { stroke: #64748b; stroke-width: 6; fill: none; stroke-linecap: butt; }
+        .rail-highlight { stroke: #e2e8f0; stroke-width: 2; fill: none; stroke-linecap: butt; }
+
+        #game-board { 
+            display: inline-block; 
+            padding: 12px; 
+            background: #475569; 
+            border-radius: 12px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15); 
         }
-
-        header p {
-            font-size: 1.2rem;
-            font-weight: 400;
-            opacity: 0.9;
-            margin-top: 15px;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        /* --- CONTAINER --- */
-        .container {
-            max-width: 1200px;
-            margin: -50px auto 50px; /* Pulls content up into the header slightly */
-            padding: 0 20px;
-            position: relative;
-        }
-
-        /* --- GRID LAYOUT --- */
-        .portfolio-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); /* Two large columns */
-            gap: 40px;
-        }
-
-        .portfolio-grid a {
-            text-decoration: none;
-            display: flex;       /* This makes the link a container */
-            height: 100%;        /* Forces it to fill the grid row height */
-        }
-
-        @media (max-width: 768px) {
-            .portfolio-grid {
-                grid-template-columns: 1fr; /* Stack on mobile */
-            }
-        }
-
-        /* --- CARD STYLE --- */
-        .card {
-            background: white;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: var(--card-shadow);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            display: flex;
-            flex-direction: column;
-
-            height: 100%; 
-            width: 100%; 
-        }
-
-        .card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.12);
-        }
-
-        /* --- IMAGE AREA --- */
-        .card-image-container {
-            height: 300px;
-            background-color: #e0e6ed;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .card-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover; /* Ensures image covers area without stretching */
-            object-position: top center;
-            transition: transform 0.5s ease;
-        }
-
-        .card:hover .card-image {
-            transform: scale(1.03); /* Subtle zoom on hover */
-        }
-
-        /* --- CONTENT AREA --- */
-        .card-content {
-            padding: 30px;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .card-tags {
-            margin-bottom: 15px;
-        }
-
-        .tag {
-            display: inline-block;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            padding: 4px 10px;
-            border-radius: 50px;
-            margin-right: 5px;
-        }
-
-        .tag.blue { background-color: #E3F2FD; color: #1565C0; }
-        .tag.green { background-color: #E8F5E9; color: #2E7D32; }
-        .tag.grey { background-color: #ECEFF1; color: #455A64; }
-
-        .card-title {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin: 0 0 10px 0;
-            color: #2C3E50;
-        }
-
-        .card-desc {
-            font-size: 0.95rem;
-            color: #546E7A;
-            margin-bottom: 20px;
-            flex-grow: 1; /* Pushes button to bottom */
-        }
-
-        /* --- FOOTER --- */
-        footer {
-            text-align: center;
-            padding: 40px;
-            color: #78909C;
-            font-size: 0.9rem;
-        }
-
     </style>
 </head>
-<body>
+<body class="min-h-screen flex flex-col items-center py-10" oncontextmenu="return false;">
 
-    <header>
-        <h1>Will Kong</h1>
-        <p>Senior Business Analyst specializing in Snowflake and Qlik Sense.</p>
-    </header>
+    <div class="max-w-4xl w-full px-4 flex flex-col items-center">
+        <h1 class="text-4xl font-extrabold text-slate-800 mb-3 tracking-tight">Train Tracks</h1>
+        <p class="text-slate-600 mb-6 text-center max-w-xl leading-relaxed">
+            Connect the Start to the End. <br>
+            <b>Left-click</b> to place and rotate tracks. <b>Right-click</b> to mark with an 'X'.<br>
+            Numbers turn <span class="text-green-600 font-bold">Green</span> when the track count is exact.
+        </p>
 
-    <div class="container">
-        <div class="portfolio-grid">
+        <div class="flex flex-wrap justify-center gap-4 mb-8">
+            <button onclick="initGame(6)" class="px-5 py-2.5 bg-emerald-500 text-white rounded-lg font-bold hover:bg-emerald-600 transition shadow-md active:transform active:scale-95">Easy (6x6)</button>
+            <button onclick="initGame(8)" class="px-5 py-2.5 bg-amber-500 text-white rounded-lg font-bold hover:bg-amber-600 transition shadow-md active:transform active:scale-95">Medium (8x8)</button>
+            <button onclick="initGame(10)" class="px-5 py-2.5 bg-rose-500 text-white rounded-lg font-bold hover:bg-rose-600 transition shadow-md active:transform active:scale-95">Hard (10x10)</button>
+        </div>
 
-           
-            <a href="Case-study-1.html" style="text-decoration: none;"> 
-                <div class="card">
-                    <div class="card-image-container">
-                        <img src="Images/p1-main.png" alt="Sales Dashboard" class="card-image">
-                    </div>
-                    <div class="card-content">
-                        <div class="card-tags">
-                            <span class="tag green">Qlik Sense</span>
-                            <span class="tag blue">Snowflake</span>                         
-                            <span class="tag grey">Sales API</span>
-                        </div>
-                        <h3 class="card-title">Public Benchmarking and Pricing Analytics</h3>
-                        <p class="card-desc">"Benchmarking internal performance against the market. A data pipeline integrating Argus public indices with sales data to provide a 'Price vs. Market' index for strategic pricing."</p> 
-                    </div>
-                </div>
-            </a>
-           
-            <a href="Case-study-2.html" style="text-decoration: none;">
-                <div class="card">
-                    <div class="card-image-container">
-                        <img src="Images/p2-main.png" alt="Inventory Dashboard" class="card-image">
-                    </div>
-                    <div class="card-content">
-                        <div class="card-tags">
-                            <span class="tag green">Qlik Sense</span>
-                            <span class="tag blue">Snowflake</span>
-                            <span class="tag grey">Logistics</span>
-                        </div>
-                        <h3 class="card-title">Live Inventory Reporting</h3>
-                        <p class="card-desc">A Digital Twin of the Cold Storage facility. Utilizing custom Qlik SVG maps to visualize pallet density and bin capacity in real-time, optimizing forklift movement and storage utilization. Click to view full case study.</p>
-                    </div>
-                </div>
-            </a>
-            
-            <a href="Case-study-3.html" style="text-decoration: none;">
-                <div class="card">
-                    <div class="card-image-container">
-                        <img src="Images/p3-main.png" alt="Production Dashboard" class="card-image">
-                    </div>
-                    <div class="card-content">
-                        <div class="card-tags">
-                            <span class="tag green">Qlik Sense N-Printing</span>
-                            <span class="tag grey">Documentation</span>
-                        </div>
-                        <h3 class="card-title"> NPrinting & Automated Reporting</h3>
-                        <p class="card-desc">Scaling analytics beyond the dashboard. An enterprise reporting solution delivering pixel-perfect operational reports to non-technical stakeholders, supported by rigorous governance documentation.</p>
-                    </div>
-                </div>
-            </a>
-           
-            <a href="Case-study-4.html" style="text-decoration: none;">
-                <div class="card">
-                    <div class="card-image-container">
-                        <img src="Images/p4-main.png" alt="Finance Dashboard" class="card-image">
-                    </div>
-                    <div class="card-content">
-                        <div class="card-tags">
-                            <span class="tag blue">Snowflake</span>
-                            <span class="tag grey">Logistics</span>
-                        </div>
-                        <h3 class="card-title">Snowflake & Streamlit</h3>
-                        <p class="card-desc">Closing the loop between Analytics and Operations. A custom Streamlit web application built on Snowflake that allows warehouse staff to generate tasks and manage picking orders directly from the floor.</p>
-                    </div>
-                </div>
-            </a>
+        <div id="message" class="h-10 font-bold text-2xl mb-4 text-center transition-all duration-300 flex items-center justify-center"></div>
 
+        <div id="game-board">
+            <div id="grid-container" style="display: grid; gap: 0;"></div>
         </div>
     </div>
 
-    <footer>
-        &copy; 2025 Will Kong. Bachelor of Mathematics//Bachelor of Commerce from The University of Queensland. All data shown is de-identified sample data.
-    </footer>
+    <script>
+        // Game Constants & State
+        let SIZE = 6;
+        let playerGrid = []; 
+        let solutionGrid = []; 
+        let rowClues = [];
+        let colClues = [];
+        let startPoint = null;
+        let endPoint = null;
+        let gameWon = false;
 
+        /*
+         Track Types:
+         0: Empty
+         1: Horizontal (-)
+         2: Vertical (|)
+         3: Bottom-Right (br)
+         4: Bottom-Left (bl)
+         5: Top-Left (tl)
+         6: Top-Right (tr)
+         -1: Cross (X)
+        */
+
+        const TRACK_SVGS = {
+            1: `<path class="sleeper" d="M20 20v60 M50 20v60 M80 20v60" />
+                <path class="rail" d="M0 35h100 M0 65h100" />
+                <path class="rail-highlight" d="M0 35h100 M0 65h100" />`,
+            2: `<path class="sleeper" d="M20 20h60 M20 50h60 M20 80h60" />
+                <path class="rail" d="M35 0v100 M65 0v100" />
+                <path class="rail-highlight" d="M35 0v100 M65 0v100" />`,
+            3: `<path class="sleeper" d="M85 85l-40-40 M60 95l-35-35 M95 60l-35-35" />
+                <path class="rail" d="M35 100 A 65 65 0 0 1 100 35 M 65 100 A 35 35 0 0 1 100 65" />
+                <path class="rail-highlight" d="M35 100 A 65 65 0 0 1 100 35 M 65 100 A 35 35 0 0 1 100 65" />`,
+            4: `<path class="sleeper" d="M15 85l40-40 M40 95l35-35 M5 60l35-35" />
+                <path class="rail" d="M65 100 A 65 65 0 0 0 0 35 M 35 100 A 35 35 0 0 0 0 65" />
+                <path class="rail-highlight" d="M65 100 A 65 65 0 0 0 0 35 M 35 100 A 35 35 0 0 0 0 65" />`,
+            5: `<path class="sleeper" d="M15 15l40 40 M40 5l35 35 M5 40l35 35" />
+                <path class="rail" d="M65 0 A 65 65 0 0 1 0 65 M 35 0 A 35 35 0 0 1 0 35" />
+                <path class="rail-highlight" d="M65 0 A 65 65 0 0 1 0 65 M 35 0 A 35 35 0 0 1 0 35" />`,
+            6: `<path class="sleeper" d="M85 15l-40 40 M60 5l-35 35 M95 40l-35 35" />
+                <path class="rail" d="M35 0 A 65 65 0 0 0 100 65 M 65 0 A 35 35 0 0 0 100 35" />
+                <path class="rail-highlight" d="M35 0 A 65 65 0 0 0 100 65 M 65 0 A 35 35 0 0 0 100 35" />`
+        };
+
+        function getTrackHTML(type) {
+            if (type === 0) return '';
+            if (type === -1) return `<div class="cross">✕</div>`;
+            return `<svg class="track-svg" viewBox="0 0 100 100">${TRACK_SVGS[type]}</svg>`;
+        }
+
+        // Connection logic for validation
+        const DIR = { UP: 0, RIGHT: 1, DOWN: 2, LEFT: 3 };
+        const CONNECTIONS = {
+            1: [DIR.LEFT, DIR.RIGHT],
+            2: [DIR.UP, DIR.DOWN],
+            3: [DIR.DOWN, DIR.RIGHT],
+            4: [DIR.DOWN, DIR.LEFT],
+            5: [DIR.UP, DIR.LEFT],
+            6: [DIR.UP, DIR.RIGHT]
+        };
+
+        function initGame(size) {
+            SIZE = size;
+            generatePuzzle();
+        }
+
+        function generatePuzzle() {
+            gameWon = false;
+            document.getElementById('message').innerHTML = "";
+            let pathFound = false;
+            let solutionPath = [];
+
+            while (!pathFound) {
+                rowClues = Array(SIZE).fill(0);
+                colClues = Array(SIZE).fill(0);
+                
+                // Pick random start and end on edges
+                const edges = [];
+                for(let i=0; i<SIZE; i++) {
+                    edges.push({r: 0, c: i}, {r: SIZE-1, c: i}, {r: i, c: 0}, {r: i, c: SIZE-1});
+                }
+                startPoint = edges[Math.floor(Math.random() * edges.length)];
+                
+                solutionPath = [];
+                const visited = new Set([`${startPoint.r},${startPoint.c}`]);
+                pathFound = findSelfAvoidingPath(startPoint.r, startPoint.c, visited, solutionPath);
+            }
+
+            // Determine piece types for the path to establish Start and End locked types
+            solutionGrid = Array(SIZE).fill(0).map(() => Array(SIZE).fill(0));
+            
+            // Function to get direction from A to B
+            const getDir = (r1, c1, r2, c2) => {
+                if (r2 < r1) return DIR.UP;
+                if (r2 > r1) return DIR.DOWN;
+                if (c2 < c1) return DIR.LEFT;
+                return DIR.RIGHT;
+            };
+
+            for (let i = 0; i < solutionPath.length; i++) {
+                const pt = solutionPath[i];
+                rowClues[pt.r]++;
+                colClues[pt.c]++;
+
+                let dirIn, dirOut;
+                
+                // For start piece, pretend it comes from outside the board
+                if (i === 0) {
+                    if (pt.r === 0) dirIn = DIR.UP;
+                    else if (pt.r === SIZE-1) dirIn = DIR.DOWN;
+                    else if (pt.c === 0) dirIn = DIR.LEFT;
+                    else dirIn = DIR.RIGHT;
+                } else {
+                    const prev = solutionPath[i-1];
+                    dirIn = getDir(pt.r, pt.c, prev.r, prev.c);
+                }
+
+                // For end piece, pretend it goes outside the board
+                if (i === solutionPath.length - 1) {
+                    if (pt.r === 0) dirOut = DIR.UP;
+                    else if (pt.r === SIZE-1) dirOut = DIR.DOWN;
+                    else if (pt.c === 0) dirOut = DIR.LEFT;
+                    else dirOut = DIR.RIGHT;
+                } else {
+                    const next = solutionPath[i+1];
+                    dirOut = getDir(pt.r, pt.c, next.r, next.c);
+                }
+
+                solutionGrid[pt.r][pt.c] = determinePieceType(dirIn, dirOut);
+            }
+
+            endPoint = solutionPath[solutionPath.length - 1];
+
+            // Reset player grid
+            playerGrid = Array(SIZE).fill(0).map(() => Array(SIZE).fill(0));
+            
+            // Set Start and End locked pieces
+            playerGrid[startPoint.r][startPoint.c] = solutionGrid[startPoint.r][startPoint.c];
+            playerGrid[endPoint.r][endPoint.c] = solutionGrid[endPoint.r][endPoint.c];
+
+            renderBoard();
+            validateGameState();
+        }
+
+        function findSelfAvoidingPath(r, c, visited, path) {
+            path.push({r, c});
+            const minLength = Math.floor(SIZE * SIZE * 0.45); // Require a good portion of the board to be used
+            
+            const isEdge = (r === 0 || r === SIZE-1 || c === 0 || c === SIZE-1);
+            const isNotStart = (r !== startPoint.r || c !== startPoint.c);
+
+            // Valid end condition
+            if (path.length > minLength && isEdge && isNotStart) {
+                return true;
+            }
+            
+            // Random chance to end early if long enough
+            if (path.length > minLength * 0.7 && isEdge && isNotStart && Math.random() < 0.2) {
+                return true;
+            }
+
+            const dirs = [{dr:-1,dc:0}, {dr:1,dc:0}, {dr:0,dc:-1}, {dr:0,dc:1}].sort(() => Math.random() - 0.5);
+
+            for (let {dr, dc} of dirs) {
+                const nr = r + dr, nc = c + dc;
+                if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && !visited.has(`${nr},${nc}`)) {
+                    
+                    // Crucial: check neighbors of the proposed next step to avoid touching existing path (prevent branching/loops)
+                    let neighborTouches = 0;
+                    for (let {dr: ndr, dc: ndc} of [{dr:-1,dc:0}, {dr:1,dc:0}, {dr:0,dc:-1}, {dr:0,dc:1}]) {
+                        if (visited.has(`${nr+ndr},${nc+ndc}`)) {
+                            neighborTouches++;
+                        }
+                    }
+                    
+                    // It should only touch the current node `(r, c)`, so neighborTouches must be exactly 1
+                    if (neighborTouches === 1) {
+                        visited.add(`${nr},${nc}`);
+                        if (findSelfAvoidingPath(nr, nc, visited, path)) return true;
+                        visited.delete(`${nr},${nc}`);
+                    }
+                }
+            }
+            path.pop();
+            return false;
+        }
+
+        function determinePieceType(d1, d2) {
+            const dirs = [d1, d2].sort();
+            if (dirs[0] === DIR.UP && dirs[1] === DIR.DOWN) return 2; // V
+            if (dirs[0] === DIR.RIGHT && dirs[1] === DIR.LEFT) return 1; // H
+            if (dirs[0] === DIR.UP && dirs[1] === DIR.RIGHT) return 6; // TR
+            if (dirs[0] === DIR.UP && dirs[1] === DIR.LEFT) return 5; // TL
+            if (dirs[0] === DIR.RIGHT && dirs[1] === DIR.DOWN) return 3; // BR
+            if (dirs[0] === DIR.DOWN && dirs[1] === DIR.LEFT) return 4; // BL
+            return 1;
+        }
+
+        function renderBoard() {
+            const container = document.getElementById('grid-container');
+            container.style.gridTemplateColumns = `auto repeat(${SIZE}, 1fr)`;
+            
+            let html = `<div style="background: transparent;"></div>`; // Top-left corner
+            
+            // Column clues
+            for (let c = 0; c < SIZE; c++) {
+                html += `<div id="col-clue-${c}" class="clue rounded-t-md">${colClues[c]}</div>`;
+            }
+
+            // Grid rows
+            for (let r = 0; r < SIZE; r++) {
+                html += `<div id="row-clue-${r}" class="clue rounded-l-md">${rowClues[r]}</div>`;
+                for (let c = 0; c < SIZE; c++) {
+                    const isLocked = (r === startPoint.r && c === startPoint.c) || (r === endPoint.r && c === endPoint.c);
+                    const lockedClass = isLocked ? 'locked' : '';
+                    html += `
+                        <div class="grid-cell ${lockedClass}" 
+                             onmousedown="handleCellClick(event, ${r}, ${c})">
+                            ${getTrackHTML(playerGrid[r][c])}
+                        </div>`;
+                }
+            }
+            container.innerHTML = html;
+        }
+
+        function handleCellClick(event, r, c) {
+            if (gameWon) return;
+            const isLocked = (r === startPoint.r && c === startPoint.c) || (r === endPoint.r && c === endPoint.c);
+            if (isLocked) return;
+
+            if (event.button === 0) { // Left click: cycle piece types
+                let current = playerGrid[r][c];
+                if (current === -1) current = 0; // Cross -> Empty -> Track 1
+                playerGrid[r][c] = (current + 1) % 7; 
+            } else if (event.button === 2) { // Right click: toggle Cross
+                playerGrid[r][c] = (playerGrid[r][c] === -1) ? 0 : -1;
+            }
+            
+            renderBoard();
+            validateGameState();
+        }
+
+        function validateGameState() {
+            let allCluesMatch = true;
+            let totalTracks = 0;
+
+            // Check Row/Col counts and update colors
+            for (let i = 0; i < SIZE; i++) {
+                let rCount = 0, cCount = 0;
+                for (let j = 0; j < SIZE; j++) {
+                    if (playerGrid[i][j] > 0) rCount++;
+                    if (playerGrid[j][i] > 0) cCount++;
+                }
+
+                const rClue = document.getElementById(`row-clue-${i}`);
+                rClue.className = `clue rounded-l-md ${rCount === rowClues[i] ? 'valid' : 'invalid'}`;
+                if (rCount !== rowClues[i]) allCluesMatch = false;
+
+                const cClue = document.getElementById(`col-clue-${i}`);
+                cClue.className = `clue rounded-t-md ${cCount === colClues[i] ? 'valid' : 'invalid'}`;
+                if (cCount !== colClues[i]) allCluesMatch = false;
+
+                totalTracks += rCount;
+            }
+
+            if (allCluesMatch && checkPathContinuity(totalTracks)) {
+                gameWon = true;
+                const msg = document.getElementById('message');
+                msg.innerHTML = "🎉 Puzzle Solved! Excellent Work! 🎉";
+                msg.className = "h-10 font-extrabold text-3xl mb-4 text-center text-green-600 drop-shadow-md animate-bounce flex items-center justify-center";
+            }
+        }
+
+        function checkPathContinuity(expectedLength) {
+            let currR = startPoint.r;
+            let currC = startPoint.c;
+            
+            // Determine initial moving direction OUT of start piece
+            let pieceType = playerGrid[currR][currC];
+            if (pieceType <= 0) return false;
+            
+            let conns = CONNECTIONS[pieceType];
+            let activeDir = -1;
+
+            // The start piece is on the edge, so one of its connections points inside the board
+            for (let dir of conns) {
+                if (dir === DIR.UP && currR > 0) activeDir = DIR.UP;
+                if (dir === DIR.DOWN && currR < SIZE - 1) activeDir = DIR.DOWN;
+                if (dir === DIR.LEFT && currC > 0) activeDir = DIR.LEFT;
+                if (dir === DIR.RIGHT && currC < SIZE - 1) activeDir = DIR.RIGHT;
+            }
+            if (activeDir === -1) return false;
+
+            let length = 1;
+            let visited = new Set([`${currR},${currC}`]);
+
+            while (true) {
+                // Move to next cell
+                if (activeDir === DIR.UP) currR--;
+                else if (activeDir === DIR.DOWN) currR++;
+                else if (activeDir === DIR.LEFT) currC--;
+                else if (activeDir === DIR.RIGHT) currC++;
+
+                // Check bounds
+                if (currR < 0 || currR >= SIZE || currC < 0 || currC >= SIZE) break;
+                
+                // Prevent loops
+                if (visited.has(`${currR},${currC}`)) return false;
+                visited.add(`${currR},${currC}`);
+                length++;
+
+                let nextType = playerGrid[currR][currC];
+                if (nextType <= 0) return false;
+
+                // What direction are we entering the new cell FROM?
+                // If we moved UP, we entered the new cell from the BOTTOM (which is DOWN direction)
+                let enteredFrom = (activeDir + 2) % 4; 
+                
+                // Check if the next piece has a connection matching enteredFrom
+                let nextConns = CONNECTIONS[nextType];
+                if (!nextConns.includes(enteredFrom)) return false;
+
+                // Set new active direction (the other connection of the piece)
+                activeDir = nextConns[0] === enteredFrom ? nextConns[1] : nextConns[0];
+
+                // Are we at the end?
+                if (currR === endPoint.r && currC === endPoint.c) {
+                    // One of the end piece's connections must point OUT of the board for it to be valid
+                    // (But since it's locked by the game, it inherently does. We just check if lengths match.)
+                    return length === expectedLength;
+                }
+            }
+            
+            return false;
+        }
+
+        // Boot
+        initGame(6);
+    </script>
 </body>
-
 </html>
-
-
-
-
-
-
-
-
