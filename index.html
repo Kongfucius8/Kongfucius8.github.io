@@ -6,18 +6,68 @@
     <title>Train Tracks</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        :root {
+            --bg-color: #f4f7f6;
+            --text-color: #1e293b;
+            --board-bg: #475569;
+            --cell-bg: #ffffff;
+            --cell-border: #94a3b8;
+            --cell-hover: #e2e8f0;
+            --locked-bg: #dcfce7;
+            --clue-bg: #cbd5e1;
+            --clue-text: #1e293b;
+            --rail-sleeper: #8b5a2b;
+            --rail-stroke: #64748b;
+            --rail-highlight: #e2e8f0;
+            --font-family: 'Inter', sans-serif;
+            --grid-gap: 0px;
+        }
+
+        body.theme-dark {
+            --bg-color: #0f172a;
+            --text-color: #f8fafc;
+            --board-bg: #1e293b;
+            --cell-bg: #334155;
+            --cell-border: #0f172a;
+            --cell-hover: #475569;
+            --locked-bg: #064e3b;
+            --clue-bg: #475569;
+            --clue-text: #f8fafc;
+            --rail-sleeper: #5c3a21;
+            --rail-stroke: #94a3b8;
+            --rail-highlight: #475569;
+        }
+
+        body.theme-work {
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --board-bg: #ffffff;
+            --cell-bg: #ffffff;
+            --cell-border: #d4d4d4;
+            --cell-hover: #f3f3f3;
+            --locked-bg: #e6f4ea;
+            --clue-bg: #f3f3f3;
+            --clue-text: #000000;
+            --rail-sleeper: #444444;
+            --rail-stroke: #217346; /* Excel green */
+            --rail-highlight: #ffffff;
+            --font-family: 'Calibri', 'Segoe UI', sans-serif;
+            --grid-gap: 1px;
+        }
+
         body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: #f4f7f6; 
+            font-family: var(--font-family); 
+            background-color: var(--bg-color); 
+            color: var(--text-color);
             user-select: none; 
             -webkit-user-select: none;
+            transition: background-color 0.3s, color 0.3s;
         }
         
-        /* Grid and Cells */
         .grid-cell {
             width: 45px; height: 45px;
-            border: 1px solid #94a3b8;
-            background-color: #ffffff;
+            border: 1px solid var(--cell-border);
+            background-color: var(--cell-bg);
             display: flex; align-items: center; justify-content: center;
             cursor: pointer; position: relative;
             box-sizing: border-box;
@@ -25,65 +75,85 @@
         }
         @media (min-width: 640px) { .grid-cell { width: 55px; height: 55px; } }
         
-        .grid-cell:hover:not(.locked) { background-color: #e2e8f0; }
-        .grid-cell.locked { cursor: not-allowed; background-color: #dcfce7; } /* Light green for start/end */
+        .grid-cell:hover:not(.locked) { background-color: var(--cell-hover); }
+        .grid-cell.locked { cursor: not-allowed; background-color: var(--locked-bg); }
 
-        /* Clues */
         .clue {
             width: 45px; height: 45px;
             display: flex; align-items: center; justify-content: center;
             font-weight: bold; font-size: 1.25rem; transition: color 0.3s;
-            background-color: #cbd5e1;
-            border: 1px solid #94a3b8;
+            background-color: var(--clue-bg);
+            color: var(--clue-text);
+            border: 1px solid var(--cell-border);
         }
         @media (min-width: 640px) { .clue { width: 55px; height: 55px; } }
         
-        .clue.invalid { color: #dc2626; } /* Red */
-        .clue.valid { color: #16a34a; }   /* Green */
+        .clue.invalid { color: #dc2626; }
+        .clue.valid { color: #16a34a; }
 
-        /* Markers */
         .cross { color: #ef4444; font-size: 2rem; font-weight: 300; pointer-events: none; line-height: 1; }
         
-        /* SVG Styling */
         .track-svg { width: 100%; height: 100%; position: absolute; top: 0; left: 0; pointer-events: none; }
-        .sleeper { stroke: #8b5a2b; stroke-width: 8; stroke-linecap: butt; fill: none; }
-        .rail { stroke: #64748b; stroke-width: 6; fill: none; stroke-linecap: butt; }
-        .rail-highlight { stroke: #e2e8f0; stroke-width: 2; fill: none; stroke-linecap: butt; }
+        .sleeper { stroke: var(--rail-sleeper); stroke-width: 8; stroke-linecap: butt; fill: none; }
+        .rail { stroke: var(--rail-stroke); stroke-width: 6; fill: none; stroke-linecap: butt; }
+        .rail-highlight { stroke: var(--rail-highlight); stroke-width: 2; fill: none; stroke-linecap: butt; }
 
         #game-board { 
             display: inline-block; 
             padding: 12px; 
-            background: #475569; 
+            background: var(--board-bg); 
             border-radius: 12px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            border: 1px solid var(--cell-border);
         }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center py-10" oncontextmenu="return false;">
 
     <div class="max-w-4xl w-full px-4 flex flex-col items-center">
-        <h1 class="text-4xl font-extrabold text-slate-800 mb-3 tracking-tight">Train Tracks</h1>
-        <p class="text-slate-600 mb-6 text-center max-w-xl leading-relaxed">
+        <h1 class="text-4xl font-extrabold mb-3 tracking-tight">Train Tracks</h1>
+        
+        <div class="flex items-center gap-4 mb-4 text-sm">
+            <label class="font-bold">Theme:</label>
+            <select id="theme-selector" onchange="changeTheme()" class="px-2 py-1 rounded border text-slate-800">
+                <option value="light">Light</option>
+                <option value="dark">Dark Mode</option>
+                <option value="work">Work (Excel) Mode</option>
+            </select>
+        </div>
+
+        <p class="opacity-80 mb-6 text-center max-w-xl leading-relaxed">
             Connect the Start to the End. <br>
-            <b>Left-click</b> to place and rotate tracks. <b>Right-click</b> to mark with an 'X'.<br>
-            Numbers turn <span class="text-green-600 font-bold">Green</span> when the track count is exact.
+            <b>Click and Drag</b> to draw tracks smoothly. <b>Right-click and Drag</b> to cross out ('X').<br>
+            Numbers turn <span class="text-green-500 font-bold">Green</span> when the track count is exact.
         </p>
 
-        <div class="flex flex-wrap justify-center gap-4 mb-8">
-            <button onclick="initGame(6)" class="px-5 py-2.5 bg-emerald-500 text-white rounded-lg font-bold hover:bg-emerald-600 transition shadow-md active:transform active:scale-95">Easy (6x6)</button>
-            <button onclick="initGame(8)" class="px-5 py-2.5 bg-amber-500 text-white rounded-lg font-bold hover:bg-amber-600 transition shadow-md active:transform active:scale-95">Medium (8x8)</button>
-            <button onclick="initGame(10)" class="px-5 py-2.5 bg-rose-500 text-white rounded-lg font-bold hover:bg-rose-600 transition shadow-md active:transform active:scale-95">Hard (10x10)</button>
+        <div class="flex flex-wrap justify-center gap-3 mb-6">
+            <button onclick="initGame(6)" class="px-4 py-2 bg-emerald-500 text-white rounded font-bold hover:bg-emerald-600 shadow-md">Easy (6x6)</button>
+            <button onclick="initGame(8)" class="px-4 py-2 bg-amber-500 text-white rounded font-bold hover:bg-amber-600 shadow-md">Medium (8x8)</button>
+            <button onclick="initGame(10)" class="px-4 py-2 bg-rose-500 text-white rounded font-bold hover:bg-rose-600 shadow-md">Hard (10x10)</button>
+        </div>
+
+        <div class="flex flex-wrap justify-center gap-3 mb-8">
+            <button onclick="clearBoard()" class="px-4 py-2 bg-slate-500 text-white rounded font-bold hover:bg-slate-600 shadow-md">Clear</button>
+            <button onclick="revealAnswer()" class="px-4 py-2 bg-indigo-500 text-white rounded font-bold hover:bg-indigo-600 shadow-md">Reveal Answer</button>
         </div>
 
         <div id="message" class="h-10 font-bold text-2xl mb-4 text-center transition-all duration-300 flex items-center justify-center"></div>
 
         <div id="game-board">
-            <div id="grid-container" style="display: grid; gap: 0;"></div>
+            <div id="grid-container" style="display: grid; gap: var(--grid-gap);" onmouseleave="endDrag()"></div>
         </div>
     </div>
 
     <script>
-        // Game Constants & State
+        /* 
+         * Changelog:
+         * - Added Reveal Answer and Clear buttons.
+         * - Added click-and-drag drawing (left click for tracks, right click for X).
+         * - Added Theme switcher (Light, Dark, Work/Excel modes).
+         */
+
         let SIZE = 6;
         let playerGrid = []; 
         let solutionGrid = []; 
@@ -93,37 +163,25 @@
         let endPoint = null;
         let gameWon = false;
 
-        /*
-         Track Types:
-         0: Empty
-         1: Horizontal (-)
-         2: Vertical (|)
-         3: Bottom-Right (br)
-         4: Bottom-Left (bl)
-         5: Top-Left (tl)
-         6: Top-Right (tr)
-         -1: Cross (X)
-        */
+        // Drag State
+        let isDragging = false;
+        let dragButton = -1; // 0 for left, 2 for right
+        let lastHovered = null; // {r, c}
+
+        const DIR = { UP: 0, RIGHT: 1, DOWN: 2, LEFT: 3 };
+        const CONNECTIONS = {
+            1: [DIR.LEFT, DIR.RIGHT], 2: [DIR.UP, DIR.DOWN],
+            3: [DIR.DOWN, DIR.RIGHT], 4: [DIR.DOWN, DIR.LEFT],
+            5: [DIR.UP, DIR.LEFT], 6: [DIR.UP, DIR.RIGHT]
+        };
 
         const TRACK_SVGS = {
-            1: `<path class="sleeper" d="M20 20v60 M50 20v60 M80 20v60" />
-                <path class="rail" d="M0 35h100 M0 65h100" />
-                <path class="rail-highlight" d="M0 35h100 M0 65h100" />`,
-            2: `<path class="sleeper" d="M20 20h60 M20 50h60 M20 80h60" />
-                <path class="rail" d="M35 0v100 M65 0v100" />
-                <path class="rail-highlight" d="M35 0v100 M65 0v100" />`,
-            3: `<path class="sleeper" d="M85 85l-40-40 M60 95l-35-35 M95 60l-35-35" />
-                <path class="rail" d="M35 100 A 65 65 0 0 1 100 35 M 65 100 A 35 35 0 0 1 100 65" />
-                <path class="rail-highlight" d="M35 100 A 65 65 0 0 1 100 35 M 65 100 A 35 35 0 0 1 100 65" />`,
-            4: `<path class="sleeper" d="M15 85l40-40 M40 95l35-35 M5 60l35-35" />
-                <path class="rail" d="M65 100 A 65 65 0 0 0 0 35 M 35 100 A 35 35 0 0 0 0 65" />
-                <path class="rail-highlight" d="M65 100 A 65 65 0 0 0 0 35 M 35 100 A 35 35 0 0 0 0 65" />`,
-            5: `<path class="sleeper" d="M15 15l40 40 M40 5l35 35 M5 40l35 35" />
-                <path class="rail" d="M65 0 A 65 65 0 0 1 0 65 M 35 0 A 35 35 0 0 1 0 35" />
-                <path class="rail-highlight" d="M65 0 A 65 65 0 0 1 0 65 M 35 0 A 35 35 0 0 1 0 35" />`,
-            6: `<path class="sleeper" d="M85 15l-40 40 M60 5l-35 35 M95 40l-35 35" />
-                <path class="rail" d="M35 0 A 65 65 0 0 0 100 65 M 65 0 A 35 35 0 0 0 100 35" />
-                <path class="rail-highlight" d="M35 0 A 65 65 0 0 0 100 65 M 65 0 A 35 35 0 0 0 100 35" />`
+            1: `<path class="sleeper" d="M20 20v60 M50 20v60 M80 20v60" /><path class="rail" d="M0 35h100 M0 65h100" /><path class="rail-highlight" d="M0 35h100 M0 65h100" />`,
+            2: `<path class="sleeper" d="M20 20h60 M20 50h60 M20 80h60" /><path class="rail" d="M35 0v100 M65 0v100" /><path class="rail-highlight" d="M35 0v100 M65 0v100" />`,
+            3: `<path class="sleeper" d="M85 85l-40-40 M60 95l-35-35 M95 60l-35-35" /><path class="rail" d="M35 100 A 65 65 0 0 1 100 35 M 65 100 A 35 35 0 0 1 100 65" /><path class="rail-highlight" d="M35 100 A 65 65 0 0 1 100 35 M 65 100 A 35 35 0 0 1 100 65" />`,
+            4: `<path class="sleeper" d="M15 85l40-40 M40 95l35-35 M5 60l35-35" /><path class="rail" d="M65 100 A 65 65 0 0 0 0 35 M 35 100 A 35 35 0 0 0 0 65" /><path class="rail-highlight" d="M65 100 A 65 65 0 0 0 0 35 M 35 100 A 35 35 0 0 0 0 65" />`,
+            5: `<path class="sleeper" d="M15 15l40 40 M40 5l35 35 M5 40l35 35" /><path class="rail" d="M65 0 A 65 65 0 0 1 0 65 M 35 0 A 35 35 0 0 1 0 35" /><path class="rail-highlight" d="M65 0 A 65 65 0 0 1 0 65 M 35 0 A 35 35 0 0 1 0 35" />`,
+            6: `<path class="sleeper" d="M85 15l-40 40 M60 5l-35 35 M95 40l-35 35" /><path class="rail" d="M35 0 A 65 65 0 0 0 100 65 M 65 0 A 35 35 0 0 0 100 35" /><path class="rail-highlight" d="M35 0 A 65 65 0 0 0 100 65 M 65 0 A 35 35 0 0 0 100 35" />`
         };
 
         function getTrackHTML(type) {
@@ -132,16 +190,10 @@
             return `<svg class="track-svg" viewBox="0 0 100 100">${TRACK_SVGS[type]}</svg>`;
         }
 
-        // Connection logic for validation
-        const DIR = { UP: 0, RIGHT: 1, DOWN: 2, LEFT: 3 };
-        const CONNECTIONS = {
-            1: [DIR.LEFT, DIR.RIGHT],
-            2: [DIR.UP, DIR.DOWN],
-            3: [DIR.DOWN, DIR.RIGHT],
-            4: [DIR.DOWN, DIR.LEFT],
-            5: [DIR.UP, DIR.LEFT],
-            6: [DIR.UP, DIR.RIGHT]
-        };
+        function changeTheme() {
+            const theme = document.getElementById('theme-selector').value;
+            document.body.className = `min-h-screen flex flex-col items-center py-10 theme-${theme}`;
+        }
 
         function initGame(size) {
             SIZE = size;
@@ -158,7 +210,6 @@
                 rowClues = Array(SIZE).fill(0);
                 colClues = Array(SIZE).fill(0);
                 
-                // Pick random start and end on edges
                 const edges = [];
                 for(let i=0; i<SIZE; i++) {
                     edges.push({r: 0, c: i}, {r: SIZE-1, c: i}, {r: i, c: 0}, {r: i, c: SIZE-1});
@@ -170,10 +221,8 @@
                 pathFound = findSelfAvoidingPath(startPoint.r, startPoint.c, visited, solutionPath);
             }
 
-            // Determine piece types for the path to establish Start and End locked types
             solutionGrid = Array(SIZE).fill(0).map(() => Array(SIZE).fill(0));
             
-            // Function to get direction from A to B
             const getDir = (r1, c1, r2, c2) => {
                 if (r2 < r1) return DIR.UP;
                 if (r2 > r1) return DIR.DOWN;
@@ -187,77 +236,51 @@
                 colClues[pt.c]++;
 
                 let dirIn, dirOut;
-                
-                // For start piece, pretend it comes from outside the board
                 if (i === 0) {
                     if (pt.r === 0) dirIn = DIR.UP;
                     else if (pt.r === SIZE-1) dirIn = DIR.DOWN;
                     else if (pt.c === 0) dirIn = DIR.LEFT;
                     else dirIn = DIR.RIGHT;
                 } else {
-                    const prev = solutionPath[i-1];
-                    dirIn = getDir(pt.r, pt.c, prev.r, prev.c);
+                    dirIn = getDir(pt.r, pt.c, solutionPath[i-1].r, solutionPath[i-1].c);
                 }
 
-                // For end piece, pretend it goes outside the board
                 if (i === solutionPath.length - 1) {
                     if (pt.r === 0) dirOut = DIR.UP;
                     else if (pt.r === SIZE-1) dirOut = DIR.DOWN;
                     else if (pt.c === 0) dirOut = DIR.LEFT;
                     else dirOut = DIR.RIGHT;
                 } else {
-                    const next = solutionPath[i+1];
-                    dirOut = getDir(pt.r, pt.c, next.r, next.c);
+                    dirOut = getDir(pt.r, pt.c, solutionPath[i+1].r, solutionPath[i+1].c);
                 }
 
                 solutionGrid[pt.r][pt.c] = determinePieceType(dirIn, dirOut);
             }
 
             endPoint = solutionPath[solutionPath.length - 1];
-
-            // Reset player grid
-            playerGrid = Array(SIZE).fill(0).map(() => Array(SIZE).fill(0));
             
-            // Set Start and End locked pieces
-            playerGrid[startPoint.r][startPoint.c] = solutionGrid[startPoint.r][startPoint.c];
-            playerGrid[endPoint.r][endPoint.c] = solutionGrid[endPoint.r][endPoint.c];
-
-            renderBoard();
-            validateGameState();
+            clearBoard(); // Re-use clear logic to set up the empty board state
         }
 
         function findSelfAvoidingPath(r, c, visited, path) {
             path.push({r, c});
-            const minLength = Math.floor(SIZE * SIZE * 0.45); // Require a good portion of the board to be used
+            const minLength = Math.floor(SIZE * SIZE * 0.45);
             
             const isEdge = (r === 0 || r === SIZE-1 || c === 0 || c === SIZE-1);
             const isNotStart = (r !== startPoint.r || c !== startPoint.c);
 
-            // Valid end condition
-            if (path.length > minLength && isEdge && isNotStart) {
-                return true;
-            }
-            
-            // Random chance to end early if long enough
-            if (path.length > minLength * 0.7 && isEdge && isNotStart && Math.random() < 0.2) {
-                return true;
-            }
+            if (path.length > minLength && isEdge && isNotStart) return true;
+            if (path.length > minLength * 0.7 && isEdge && isNotStart && Math.random() < 0.2) return true;
 
             const dirs = [{dr:-1,dc:0}, {dr:1,dc:0}, {dr:0,dc:-1}, {dr:0,dc:1}].sort(() => Math.random() - 0.5);
 
             for (let {dr, dc} of dirs) {
                 const nr = r + dr, nc = c + dc;
                 if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && !visited.has(`${nr},${nc}`)) {
-                    
-                    // Crucial: check neighbors of the proposed next step to avoid touching existing path (prevent branching/loops)
                     let neighborTouches = 0;
                     for (let {dr: ndr, dc: ndc} of [{dr:-1,dc:0}, {dr:1,dc:0}, {dr:0,dc:-1}, {dr:0,dc:1}]) {
-                        if (visited.has(`${nr+ndr},${nc+ndc}`)) {
-                            neighborTouches++;
-                        }
+                        if (visited.has(`${nr+ndr},${nc+ndc}`)) neighborTouches++;
                     }
-                    
-                    // It should only touch the current node `(r, c)`, so neighborTouches must be exactly 1
                     if (neighborTouches === 1) {
                         visited.add(`${nr},${nc}`);
                         if (findSelfAvoidingPath(nr, nc, visited, path)) return true;
@@ -271,35 +294,121 @@
 
         function determinePieceType(d1, d2) {
             const dirs = [d1, d2].sort();
-            if (dirs[0] === DIR.UP && dirs[1] === DIR.DOWN) return 2; // V
-            if (dirs[0] === DIR.RIGHT && dirs[1] === DIR.LEFT) return 1; // H
-            if (dirs[0] === DIR.UP && dirs[1] === DIR.RIGHT) return 6; // TR
-            if (dirs[0] === DIR.UP && dirs[1] === DIR.LEFT) return 5; // TL
-            if (dirs[0] === DIR.RIGHT && dirs[1] === DIR.DOWN) return 3; // BR
-            if (dirs[0] === DIR.DOWN && dirs[1] === DIR.LEFT) return 4; // BL
+            if (dirs[0] === DIR.UP && dirs[1] === DIR.DOWN) return 2;
+            if (dirs[0] === DIR.RIGHT && dirs[1] === DIR.LEFT) return 1;
+            if (dirs[0] === DIR.UP && dirs[1] === DIR.RIGHT) return 6;
+            if (dirs[0] === DIR.UP && dirs[1] === DIR.LEFT) return 5;
+            if (dirs[0] === DIR.RIGHT && dirs[1] === DIR.DOWN) return 3;
+            if (dirs[0] === DIR.DOWN && dirs[1] === DIR.LEFT) return 4;
             return 1;
+        }
+
+        function clearBoard() {
+            gameWon = false;
+            document.getElementById('message').innerHTML = "";
+            playerGrid = Array(SIZE).fill(0).map(() => Array(SIZE).fill(0));
+            playerGrid[startPoint.r][startPoint.c] = solutionGrid[startPoint.r][startPoint.c];
+            playerGrid[endPoint.r][endPoint.c] = solutionGrid[endPoint.r][endPoint.c];
+            renderBoard();
+            validateGameState();
+        }
+
+        function revealAnswer() {
+            gameWon = false;
+            document.getElementById('message').innerHTML = "";
+            playerGrid = JSON.parse(JSON.stringify(solutionGrid));
+            renderBoard();
+            validateGameState();
+        }
+
+        function isLockedCell(r, c) {
+            return (r === startPoint.r && c === startPoint.c) || (r === endPoint.r && c === endPoint.c);
+        }
+
+        document.addEventListener('mouseup', endDrag);
+
+        function endDrag() {
+            isDragging = false;
+            lastHovered = null;
+        }
+
+        function handleMouseDown(event, r, c) {
+            if (gameWon || isLockedCell(r, c)) return;
+            isDragging = true;
+            dragButton = event.button;
+            lastHovered = {r, c};
+            applyAction(r, c, true);
+        }
+
+        function handleMouseEnter(event, r, c) {
+            if (gameWon || !isDragging || isLockedCell(r, c)) {
+                lastHovered = {r, c}; // Track where we are even if locked to calculate entry for next cell
+                return;
+            }
+            applyAction(r, c, false);
+        }
+
+        function applyAction(r, c, isClick) {
+            if (dragButton === 2) {
+                // Right click: Place X
+                playerGrid[r][c] = -1;
+            } else if (dragButton === 0) {
+                // Left click
+                if (isClick) {
+                    // Normal click rotates
+                    let current = playerGrid[r][c];
+                    if (current === -1) current = 0;
+                    playerGrid[r][c] = (current + 1) % 7; 
+                } else if (lastHovered) {
+                    // Drag logic for drawing smoothly
+                    const dr = r - lastHovered.r;
+                    const dc = c - lastHovered.c;
+                    
+                    // Simple heuristic for smooth drag: if horizontal, place -, if vertical place |
+                    // We also try to convert the previous cell into a corner if direction changed
+                    let newType = playerGrid[r][c];
+                    let prevType = playerGrid[lastHovered.r][lastHovered.c];
+
+                    if (dr === 0 && (dc === 1 || dc === -1)) { // Horizontal movement
+                        if (playerGrid[r][c] <= 0) playerGrid[r][c] = 1; // Straight horizontal
+                        // Update previous if it was vertical
+                        if (!isLockedCell(lastHovered.r, lastHovered.c) && prevType === 2) {
+                            // Determine corner based on previous motion, simplified:
+                            // We don't have full history, just cycle to a random corner or let user fix
+                            playerGrid[lastHovered.r][lastHovered.c] = dc === 1 ? 3 : 4; 
+                        }
+                    } else if (dc === 0 && (dr === 1 || dr === -1)) { // Vertical movement
+                        if (playerGrid[r][c] <= 0) playerGrid[r][c] = 2; // Straight vertical
+                        // Update previous if it was horizontal
+                        if (!isLockedCell(lastHovered.r, lastHovered.c) && prevType === 1) {
+                            playerGrid[lastHovered.r][lastHovered.c] = dr === 1 ? 4 : 5;
+                        }
+                    }
+                }
+            }
+            lastHovered = {r, c};
+            renderBoard();
+            validateGameState();
         }
 
         function renderBoard() {
             const container = document.getElementById('grid-container');
             container.style.gridTemplateColumns = `auto repeat(${SIZE}, 1fr)`;
             
-            let html = `<div style="background: transparent;"></div>`; // Top-left corner
+            let html = `<div style="background: transparent;"></div>`;
             
-            // Column clues
             for (let c = 0; c < SIZE; c++) {
-                html += `<div id="col-clue-${c}" class="clue rounded-t-md">${colClues[c]}</div>`;
+                html += `<div id="col-clue-${c}" class="clue" style="border-top-left-radius: 6px; border-top-right-radius: 6px;">${colClues[c]}</div>`;
             }
 
-            // Grid rows
             for (let r = 0; r < SIZE; r++) {
-                html += `<div id="row-clue-${r}" class="clue rounded-l-md">${rowClues[r]}</div>`;
+                html += `<div id="row-clue-${r}" class="clue" style="border-top-left-radius: 6px; border-bottom-left-radius: 6px;">${rowClues[r]}</div>`;
                 for (let c = 0; c < SIZE; c++) {
-                    const isLocked = (r === startPoint.r && c === startPoint.c) || (r === endPoint.r && c === endPoint.c);
-                    const lockedClass = isLocked ? 'locked' : '';
+                    const lockedClass = isLockedCell(r, c) ? 'locked' : '';
                     html += `
                         <div class="grid-cell ${lockedClass}" 
-                             onmousedown="handleCellClick(event, ${r}, ${c})">
+                             onmousedown="handleMouseDown(event, ${r}, ${c})"
+                             onmouseenter="handleMouseEnter(event, ${r}, ${c})">
                             ${getTrackHTML(playerGrid[r][c])}
                         </div>`;
                 }
@@ -307,28 +416,10 @@
             container.innerHTML = html;
         }
 
-        function handleCellClick(event, r, c) {
-            if (gameWon) return;
-            const isLocked = (r === startPoint.r && c === startPoint.c) || (r === endPoint.r && c === endPoint.c);
-            if (isLocked) return;
-
-            if (event.button === 0) { // Left click: cycle piece types
-                let current = playerGrid[r][c];
-                if (current === -1) current = 0; // Cross -> Empty -> Track 1
-                playerGrid[r][c] = (current + 1) % 7; 
-            } else if (event.button === 2) { // Right click: toggle Cross
-                playerGrid[r][c] = (playerGrid[r][c] === -1) ? 0 : -1;
-            }
-            
-            renderBoard();
-            validateGameState();
-        }
-
         function validateGameState() {
             let allCluesMatch = true;
             let totalTracks = 0;
 
-            // Check Row/Col counts and update colors
             for (let i = 0; i < SIZE; i++) {
                 let rCount = 0, cCount = 0;
                 for (let j = 0; j < SIZE; j++) {
@@ -337,11 +428,13 @@
                 }
 
                 const rClue = document.getElementById(`row-clue-${i}`);
-                rClue.className = `clue rounded-l-md ${rCount === rowClues[i] ? 'valid' : 'invalid'}`;
+                if(rCount === rowClues[i]) rClue.classList.add('valid'); else rClue.classList.remove('valid');
+                if(rCount > rowClues[i]) rClue.classList.add('invalid'); else rClue.classList.remove('invalid');
                 if (rCount !== rowClues[i]) allCluesMatch = false;
 
                 const cClue = document.getElementById(`col-clue-${i}`);
-                cClue.className = `clue rounded-t-md ${cCount === colClues[i] ? 'valid' : 'invalid'}`;
+                if(cCount === colClues[i]) cClue.classList.add('valid'); else cClue.classList.remove('valid');
+                if(cCount > colClues[i]) cClue.classList.add('invalid'); else cClue.classList.remove('invalid');
                 if (cCount !== colClues[i]) allCluesMatch = false;
 
                 totalTracks += rCount;
@@ -351,7 +444,7 @@
                 gameWon = true;
                 const msg = document.getElementById('message');
                 msg.innerHTML = "🎉 Puzzle Solved! Excellent Work! 🎉";
-                msg.className = "h-10 font-extrabold text-3xl mb-4 text-center text-green-600 drop-shadow-md animate-bounce flex items-center justify-center";
+                msg.className = "h-10 font-extrabold text-3xl mb-4 text-center text-green-500 drop-shadow-md animate-bounce flex items-center justify-center";
             }
         }
 
@@ -359,14 +452,12 @@
             let currR = startPoint.r;
             let currC = startPoint.c;
             
-            // Determine initial moving direction OUT of start piece
             let pieceType = playerGrid[currR][currC];
             if (pieceType <= 0) return false;
             
             let conns = CONNECTIONS[pieceType];
             let activeDir = -1;
 
-            // The start piece is on the edge, so one of its connections points inside the board
             for (let dir of conns) {
                 if (dir === DIR.UP && currR > 0) activeDir = DIR.UP;
                 if (dir === DIR.DOWN && currR < SIZE - 1) activeDir = DIR.DOWN;
@@ -379,16 +470,12 @@
             let visited = new Set([`${currR},${currC}`]);
 
             while (true) {
-                // Move to next cell
                 if (activeDir === DIR.UP) currR--;
                 else if (activeDir === DIR.DOWN) currR++;
                 else if (activeDir === DIR.LEFT) currC--;
                 else if (activeDir === DIR.RIGHT) currC++;
 
-                // Check bounds
                 if (currR < 0 || currR >= SIZE || currC < 0 || currC >= SIZE) break;
-                
-                // Prevent loops
                 if (visited.has(`${currR},${currC}`)) return false;
                 visited.add(`${currR},${currC}`);
                 length++;
@@ -396,21 +483,13 @@
                 let nextType = playerGrid[currR][currC];
                 if (nextType <= 0) return false;
 
-                // What direction are we entering the new cell FROM?
-                // If we moved UP, we entered the new cell from the BOTTOM (which is DOWN direction)
                 let enteredFrom = (activeDir + 2) % 4; 
-                
-                // Check if the next piece has a connection matching enteredFrom
                 let nextConns = CONNECTIONS[nextType];
                 if (!nextConns.includes(enteredFrom)) return false;
 
-                // Set new active direction (the other connection of the piece)
                 activeDir = nextConns[0] === enteredFrom ? nextConns[1] : nextConns[0];
 
-                // Are we at the end?
                 if (currR === endPoint.r && currC === endPoint.c) {
-                    // One of the end piece's connections must point OUT of the board for it to be valid
-                    // (But since it's locked by the game, it inherently does. We just check if lengths match.)
                     return length === expectedLength;
                 }
             }
@@ -418,7 +497,7 @@
             return false;
         }
 
-        // Boot
+        changeTheme(); // Initialize default theme
         initGame(6);
     </script>
 </body>
